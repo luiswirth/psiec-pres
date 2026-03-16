@@ -58,3 +58,9 @@
 
 // Tensor product
 #let tprod = math.times.o
+
+// Sobolev spaces
+#let Hvec = $avec(H)$
+#let H0 = $limits(H)^circle.stroked.small$
+#let H0vec = $limits(Hvec)^circle.stroked.small$
+
