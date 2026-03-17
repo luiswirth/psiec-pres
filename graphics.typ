@@ -1,4 +1,5 @@
-#let fgcolor = white
+//#let fgcolor = white
+#let fgcolor = black
 
 #let wavelet-plot(
   func,
@@ -8,7 +9,7 @@
   xmax: 4.0,
   ymin: -1.0,
   ymax: 1.0,
-  col: blue.lighten(20%),
+  col: blue.transparentize(20%),
   n: 300,
 ) = {
   let w = width
@@ -41,7 +42,7 @@
       let y2c = calc.min(calc.max(y2, ymin), ymax)
       let (px1, py1) = to-px(x1, y1c)
       let (px2, py2) = to-px(x2, y2c)
-      place(line(start: (px1, py1), end: (px2, py2), stroke: 1.8pt + col))
+      place(line(start: (px1, py1), end: (px2, py2), stroke: 4.0pt + col))
     }
   })
 }
@@ -69,7 +70,7 @@
   xmin: -2.0, xmax: 2.0,
   ymin: -2.0, ymax: 2.0,
   col: "hsl(210,80%,60%)",
-  stroke-width: 2.0,
+  stroke-width: 3.0,
 ) = {
   let to-svg(x, y) = {
     let sx = calc.round((x - xmin) / (xmax - xmin) * width, digits: 2)
@@ -124,7 +125,7 @@
 #let vortex-curves = {
   let n = 8
   range(n).map(i => {
-    let r = 0.25 * (i + 1)
+    let r = 0.24 * (i + 1)
     let npoints = 121
     range(npoints).map(j => {
       let t = 2.0 * calc.pi * j / (npoints - 1)

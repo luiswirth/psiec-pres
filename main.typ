@@ -4,10 +4,14 @@
 #import "graphics.typ": *
 #show: math-template
 
-#let fgcolor = white
-#let bgcolor = black
-#let accent  = rgb("#5ba4d4")
-#let accent2 = rgb("#e07b4f")
+//#let fgcolor = white
+//#let bgcolor = black
+//#let accent  = rgb("#5ba4d4")
+//#let accent2 = rgb("#e07b4f")
+#let fgcolor = black
+#let bgcolor = white
+#let accent  = blue
+#let accent2 = red
 
 #set text(font: "New Computer Modern Sans")
 #set text(size: 22pt)
@@ -25,9 +29,9 @@
 )
 
 #let diagram = fletcher.diagram.with(
-  node-fill: black,
-  edge-stroke: white,
-  crossing-fill: black,
+  node-fill: bgcolor,
+  edge-stroke: fgcolor,
+  crossing-fill: bgcolor,
 )
 
 #show heading.where(level: 1): set text(35pt)
@@ -39,7 +43,7 @@
 
 #let defbox(title: none, body) = block(
   width: 100%, inset: 12pt, radius: 4pt,
-  fill: rgb("#0a1e30"),
+  fill: accent.transparentize(80%),
   stroke: (left: 3pt + accent),
 )[
   #if title != none { text(fill: accent, weight: "bold")[#title\ ] }
@@ -48,7 +52,7 @@
 
 #let propbox(title: none, body) = block(
   width: 100%, inset: 12pt, radius: 4pt,
-  fill: rgb("#1a1200"),
+  fill: accent2.transparentize(80%),
   stroke: (left: 3pt + accent2),
 )[
   #if title != none { text(fill: accent2, weight: "bold")[#title\ ] }
@@ -58,7 +62,7 @@
 #slide[
   #set align(center)
   #box(
-    fill: black.transparentize(20%),
+    fill: bgcolor.transparentize(20%),
     outset: 20pt,
     radius: 0pt,
   )[
@@ -68,7 +72,7 @@
       #set par(spacing: 5mm)
       $Psi$ec: A local spectral exterior calculus
       \
-      2020
+      2021
     ]
     #v(1cm)
     #[
@@ -86,10 +90,8 @@
 
 #slide[
   = Exterior Calculus + Fourier Transform
-  #snote[Another presentation about Differential Forms #emoji.face.weary]
-
   #set align(center + horizon)
-  #image("supremacy.png", height: 75%)
+  #image("supremacy.png", height: 90%)
 ]
 
 #slide[
@@ -139,7 +141,7 @@
     $
   ]
   
-  - Violate Structural Identities $->$ Numerical Scheme breakes!
+  - Violate Structural Identities $->$ Numerical Scheme breaks!
     - Spurious Solutions
     - Unphysical Fields
     - Magnetic Monopoles
@@ -171,7 +173,7 @@
   #grid(columns: (1fr, 1fr), gutter: 14pt,
     defbox(title: "FEEC / DEC")[
       - Mesh-based
-      - Continous forms are replaced by *discrete surrogates* (cochains)
+      - Continuous forms are replaced by *discrete surrogates* (cochains)
       - Structure preservation must be *carefully constructed*
     ],
     propbox(title: [$Psi$ec])[
@@ -214,7 +216,7 @@
   \
   Encodes *orientation* and *antisymmetry*.
 
-  #let this(content) = text(fill: blue.lighten(20%), content)
+  #let this(content) = text(fill: blue, content)
   #let that(content) = text(fill: red, content)
   $
     sans("point/scalar"): quad
@@ -378,10 +380,21 @@
 
 #slide[
   = The Fourier Transform
-  #v(1cm)
+  #snote[Why relevant for PDEs?]
 
-  The scalar Fourier transform turns $dif\/dif x$ into multiplication by $i xi$.\
-  $->$ Turns differentials equations into algebraic equations!
+  Turns differentiation into multiplication.\
+  #text(40pt)[
+  #set block(spacing: 20pt)
+  $
+    dif/(dif x) |-> i xi
+  $]
+  #v(0.5cm)
+  Differential equations become algebraic equations!
+  #text(40pt)[
+  #set block(spacing: 20pt)
+  $
+    -u'' + lambda u = f quad |-> quad (xi^2 + lambda) hat(u) = hat(f)
+  $]
 
   Does this also happen in higher dimensions?
 ]
@@ -394,9 +407,9 @@
 
   #set text(40pt)
   $
-    grad f       &= nabla f       quad &&|-> quad i xi hat(f) \
-    curl avec(u) &= nabla times u quad &&|-> quad i xi times hat(avec(u)) \
-    div  avec(u) &= nabla dot u   quad &&|-> quad i xi dot hat(avec(u)) \
+    grad f       &= nabla f       quad &&|-> quad i avec(xi) hat(f) \
+    curl avec(u) &= nabla times u quad &&|-> quad i avec(xi) times hat(avec(u)) \
+    div  avec(u) &= nabla dot u   quad &&|-> quad i avec(xi) dot hat(avec(u)) \
   $
 ]
 
@@ -441,7 +454,7 @@
   = To be, or not to be radial
   #v(1cm)
 
-  #let madd(a) = text(fill: green, a)
+  #let madd(a) = text(fill: green.darken(20%), a)
   #let mrm(a) = text(fill: red, a)
 
   - The contraction $iota_(partial\/partial hat(r))$ strips off the radial
@@ -464,22 +477,29 @@
 ]
 
 #slide[
-  = Trivial Differentials
+  = Trivial Structural Identities
   #v(1cm)
   You cannot remove a radial component twice.
+
+  #text(30pt)[
+  #set block(spacing: 30pt)
   $
     hat(dif) compose hat(dif) = iota_(partial\/partial hat(r)) thin iota_(partial\/partial hat(r)) =  0
-  $
+  $]
 
-  You cannot wedge on a second radial component by antisymmetry.
+  You cannot have two radial component by antisymmetry.
+  #text(30pt)[
+  #set block(spacing: 30pt)
   $
     hat(delta) compose hat(delta) = partial\/partial hat(r) wedge partial\/partial hat(r) = 0
-  $
+  $]
 
-  Geometric parts compose to identity, leaving only a scalar.
+  Laplacian: Geometric parts compose to identity, leaving only a scalar.
+  #text(30pt)[
+  #set block(spacing: 30pt)
   $
     hat(lapl) = hat(dif) hat(delta) + hat(delta) hat(dif) = abs(xi)^2
-  $
+  $]
 ]
 
 #slide[
@@ -580,7 +600,7 @@
     ],
     [
       #set align(center + horizon)
-      #wavelet-plot(gaussian, width: 400pt, col: yellow.lighten(10%), ymin: -0.5, ymax: 1.1)
+      #wavelet-plot(gaussian, width: 400pt, col: purple, ymin: -0.5, ymax: 1.1)
     ],
   )
 
@@ -596,16 +616,16 @@
     gutter: 14pt,
     align: center,
     [
-      *Haar*\
-      #wavelet-plot(haar, xmin: -1.5, xmax: 2.5)
+      *Morlet*\
+      #wavelet-plot(morlet, col: red)
     ],
     [
       *Mexican Hat*\
-      #wavelet-plot(mexican-hat, col: red.lighten(20%))
+      #wavelet-plot(mexican-hat, col: green)
     ],
     [
-      *Morlet*\
-      #wavelet-plot(morlet, col: green.lighten(20%))
+      *Haar*\
+      #wavelet-plot(haar, col: blue, xmin: -1.5, xmax: 2.5)
     ],
   ))
 
@@ -680,14 +700,38 @@
 
 #slide[
   = The Main Message
-  #v(0.6cm)
 
-  *multidimensional calculus* $->$ *exterior calculus* $->$ *frequency space* $->$ *spherical coordinates*
+  #set text(25pt)
 
-  The de Rham complex reduces to adding/removing radial components.
+  #set align(horizon)
+  #grid(
+    columns: (auto, 1fr),
+    gutter: 30pt,
+    align: center + horizon,
+    text(size: 24pt, weight: "bold")[
+      multidimensional calculus \
+      $arrow.b$ \
+      exterior calculus \
+      $arrow.b$ \
+      frequency space \
+      $arrow.b$ \
+      spherical coordinates
+    ],
+    [
+      The *de Rham complex* reduces to:
 
-  Polar differential forms wavelets!
+      #align(center, text(size: 28pt, weight: "bold")[
+        Radial vs Tangential
+      ])
+
+      #v(0.3cm)
+
+      *Polar wavelets* respect this by construction. \
+      $->$ *Structure preservation* is free.
+    ]
+  )
 ]
+
 
 #slide[
   #set align(center + horizon)
@@ -704,6 +748,7 @@
 
   The Fourier exponential $e^(i x^p xi_p)$ must be coordinate-independent.\
   Under $x^p |-> lambda x^p$ we need $xi_p |-> xi_p \/ lambda$:
+  #v(-0.5cm)
 
   #grid(columns: (1fr, 1fr), gutter: 14pt,
     defbox(title: [$x^p$ contravariant])[
@@ -715,11 +760,13 @@
       transforms *against* basis change
     ],
   )
+  #v(-0.5cm)
 
   #propbox(title: "Dual space")[
     $hat(RR)^n = (RR^n)^*$. #h(1em)
-    The pairing $chevron.l xi, x chevron.r = xi_p x^p$ is canonical — *no metric required*.
+    The pairing $chevron.l xi, x chevron.r = xi_p x^p$ is canonical $->$ *no metric required*.
   ]
+  #v(-0.5cm)
 
   $xi$ is a *stack of parallel hyperplanes* (wavefronts of $e^(i xi_p x^p)$).
   The pairing counts how many wavefronts $x$ crosses.
