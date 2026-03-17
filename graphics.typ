@@ -1,3 +1,67 @@
+#let fgcolor = white
+
+#let wavelet-plot(
+  func,
+  width: 200pt,
+  height: 120pt,
+  xmin: -4.0,
+  xmax: 4.0,
+  ymin: -1.0,
+  ymax: 1.0,
+  col: blue.lighten(20%),
+  n: 300,
+) = {
+  let w = width
+  let h = height
+  let to-px(x, y) = {
+    let px = (x - xmin) / (xmax - xmin) * w
+    let py = (1.0 - (y - ymin) / (ymax - ymin)) * h
+    (px, py)
+  }
+
+  box(width: w, height: h, {
+    // x-axis
+    let (ax0, ay) = to-px(xmin, 0)
+    let (ax1, _) = to-px(xmax, 0)
+    place(line(start: (ax0, ay), end: (ax1, ay), stroke: 0.7pt + fgcolor.transparentize(60%)))
+
+    // y-axis
+    let (cx, cy0) = to-px(0, ymin)
+    let (_, cy1) = to-px(0, ymax)
+    place(line(start: (cx, cy0), end: (cx, cy1), stroke: 0.7pt + fgcolor.transparentize(60%)))
+
+    // curve
+    for i in range(n) {
+      let x1 = xmin + (xmax - xmin) * i / n
+      let x2 = xmin + (xmax - xmin) * (i + 1) / n
+      let y1 = func(x1)
+      let y2 = func(x2)
+      // clamp
+      let y1c = calc.min(calc.max(y1, ymin), ymax)
+      let y2c = calc.min(calc.max(y2, ymin), ymax)
+      let (px1, py1) = to-px(x1, y1c)
+      let (px2, py2) = to-px(x2, y2c)
+      place(line(start: (px1, py1), end: (px2, py2), stroke: 1.8pt + col))
+    }
+  })
+}
+
+#let haar(x) = {
+  if x >= 0.0 and x < 0.5 { 1.0 }
+  else if x >= 0.5 and x < 1.0 { -1.0 }
+  else { 0.0 }
+}
+#let mexican-hat(x) = {
+  (1.0 - x * x) * calc.exp(-x * x / 2.0)
+}
+#let morlet(x) = {
+  calc.exp(-x * x / 2.0) * calc.cos(5.0 * x)
+}
+#let gaussian(x) = {
+  calc.exp(-x * x / 2.0)
+}
+
+
 #let flow-svg(
   curves,
   width: 200,

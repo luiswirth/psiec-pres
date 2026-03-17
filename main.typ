@@ -55,67 +55,6 @@
   #body
 ]
 
-#let wavelet-plot(
-  func,
-  width: 200pt,
-  height: 120pt,
-  xmin: -4.0,
-  xmax: 4.0,
-  ymin: -1.0,
-  ymax: 1.0,
-  col: blue.lighten(20%),
-  n: 300,
-) = {
-  let w = width
-  let h = height
-  let to-px(x, y) = {
-    let px = (x - xmin) / (xmax - xmin) * w
-    let py = (1.0 - (y - ymin) / (ymax - ymin)) * h
-    (px, py)
-  }
-
-  box(width: w, height: h, {
-    // x-axis
-    let (ax0, ay) = to-px(xmin, 0)
-    let (ax1, _) = to-px(xmax, 0)
-    place(line(start: (ax0, ay), end: (ax1, ay), stroke: 0.7pt + fgcolor.transparentize(60%)))
-
-    // y-axis
-    let (cx, cy0) = to-px(0, ymin)
-    let (_, cy1) = to-px(0, ymax)
-    place(line(start: (cx, cy0), end: (cx, cy1), stroke: 0.7pt + fgcolor.transparentize(60%)))
-
-    // curve
-    for i in range(n) {
-      let x1 = xmin + (xmax - xmin) * i / n
-      let x2 = xmin + (xmax - xmin) * (i + 1) / n
-      let y1 = func(x1)
-      let y2 = func(x2)
-      // clamp
-      let y1c = calc.min(calc.max(y1, ymin), ymax)
-      let y2c = calc.min(calc.max(y2, ymin), ymax)
-      let (px1, py1) = to-px(x1, y1c)
-      let (px2, py2) = to-px(x2, y2c)
-      place(line(start: (px1, py1), end: (px2, py2), stroke: 1.8pt + col))
-    }
-  })
-}
-
-#let haar(x) = {
-  if x >= 0.0 and x < 0.5 { 1.0 }
-  else if x >= 0.5 and x < 1.0 { -1.0 }
-  else { 0.0 }
-}
-#let mexican-hat(x) = {
-  (1.0 - x * x) * calc.exp(-x * x / 2.0)
-}
-#let morlet(x) = {
-  calc.exp(-x * x / 2.0) * calc.cos(5.0 * x)
-}
-#let gaussian(x) = {
-  calc.exp(-x * x / 2.0)
-}
-
 #slide[
   #set align(center)
   #box(
@@ -146,8 +85,11 @@
 ]
 
 #slide[
-  = The Exterior Calculus in Frequency Space
-  #snote[Another talk about Differential Forms #emoji.face.weary]
+  = Exterior Calculus + Fourier Transform
+  #snote[Another presentation about Differential Forms #emoji.face.weary]
+
+  #set align(center + horizon)
+  #image("supremacy.png", height: 75%)
 ]
 
 #slide[
@@ -188,24 +130,36 @@
 #slide[
   = Structural Identities
   #snote[The nature of PDEs]
-  #v(1cm)
 
-  //Discretization Problem: Numerical Scheme breakes structual idetnties between operators, things go wrong.
+  #text(40pt)[
+    $
+      curl compose grad = 0
+      quad quad
+      div compose curl = 0
+    $
+  ]
+  
+  - Violate Structural Identities $->$ Numerical Scheme breakes!
+    - Spurious Solutions
+    - Unphysical Fields
+    - Magnetic Monopoles
 
-  #set text(28pt)
-  $
-    curl compose grad = 0
-    quad quad
-    div compose curl = 0
-  $
+]
 
-  #pause
-  #v(3cm)
+#slide[
   = The de Rham Complex
+  #snote[Connecting the Differentials]
   #v(1cm)
-  $
-    H(grad; Omega) limits(->)^grad Hvec (curl; Omega) limits(->)^curl Hvec (div; Omega) limits(->)^div L^2(Omega)
-  $
+
+  #text(30pt)[
+    $
+      H(grad; Omega) limits(->)^grad Hvec (curl; Omega) limits(->)^curl Hvec (div; Omega) limits(->)^div L^2(Omega)
+      \
+      curl compose grad = 0
+      quad quad
+      div compose curl = 0
+    $
+  ]
 ]
 
 #slide[
@@ -217,14 +171,14 @@
   #grid(columns: (1fr, 1fr), gutter: 14pt,
     defbox(title: "FEEC / DEC")[
       - Mesh-based
-      - Continous forms are replaced by *discrete counterparts* (cochains, Whitney forms)
+      - Continous forms are replaced by *discrete surrogates* (cochains)
       - Structure preservation must be *carefully constructed*
     ],
     propbox(title: [$Psi$ec])[
       - Mesh-free
-      - Frequency Domain
       - Basis functions are *genuine continuous forms*
       - Structure preservation is *automatic*.
+      //- Spectral method in the frequency domain
     ],
   )
 ]
@@ -403,22 +357,21 @@
       gutter: 8pt,
       row-gutter: 20pt,
       align: center + horizon,
-      [*Exact ($curl$-free)*],
+      [*Mixed*],
       [],
-      [*Coexact ($div$-free)*],
+      [*$curl$-free (exact)*],
       [],
-      [*Combined*],
+      [*$div$-free (coexact)*],
+      flow-svg(spiral-curves, col: "hsl(140,70%,50%)"),
+      text(size: 24pt)[$=$],
       flow-svg(source-curves, col: "hsl(210,80%,60%)"),
       text(size: 24pt)[$+$],
       flow-svg(vortex-curves, col: "hsl(0,75%,60%)"),
-      text(size: 24pt)[$=$],
-      flow-svg(spiral-curves, col: "hsl(140,70%,50%)"),
-
+      $[x-y, x+y]$,
+      [],
       $[x,y]$,
       [],
       $[-y,x]$,
-      [],
-      $[x-y, x+y]$,
     )
   )
 ]
@@ -427,9 +380,10 @@
   = The Fourier Transform
   #v(1cm)
 
-  The scalar Fourier transform takes $dif\/dif x$ to
-  multiplication by $i xi$.\
-  What happens in higher dimensions?
+  The scalar Fourier transform turns $dif\/dif x$ into multiplication by $i xi$.\
+  $->$ Turns differentials equations into algebraic equations!
+
+  Does this also happen in higher dimensions?
 ]
 
 
@@ -510,8 +464,7 @@
 ]
 
 #slide[
-  = Trivially Nilpotent Differentials
-  #snote[via Fourier]
+  = Trivial Differentials
   #v(1cm)
   You cannot remove a radial component twice.
   $
@@ -532,13 +485,15 @@
 #slide[
   = Trivial Hodge-Helmholtz Decomposition
   #snote[via Fourier]
-  #v(1cm)
+  #v(0.5cm)
 
-  The entire exterior algebra splits into two pieces:
-  - *Tangential forms* (without radial component): these are the *exact* forms $hat(omega)_dif$.
-  - *Radial forms* (with radial component): these are the *coexact* forms $hat(omega)_delta$.
+  Hodge-Helmholtz becomes basic geometric fact.
 
-  The two differentials move between them:
+  All forms split into two orthogonal types:
+  - *Tangential/Exact forms* $hat(omega)_dif$
+  - *Radial/Coexact forms* $hat(omega)_delta$
+
+  The differentials move between them:
   $
     hat(dif): "radial" arrow.r^(iota _(partial slash partial hat(r))) "tangential"
     \
@@ -560,8 +515,9 @@
   #propbox(title: "A first idea")[
     Inspired by Fourier: Use plane waves in space.
     $
-      b(x) = e^(i omega x) = cos(omega x) + i sin(omega x)
+      b(x) = e^(i xi_0 x) = cos(xi_0 x) + i sin(xi_0 x)
     $
+    $->$ classical spectral method.
   ]
   
 ]
@@ -575,55 +531,64 @@
   #grid(columns: (1fr, 1fr), gutter: 14pt,
     defbox(title: "Plane wave — perfect frequency")[
       $e^(i xi_0 x) quad arrows.lr quad delta(xi - xi_0)$\
-      *Zero* position localization. \
+      #emoji.crossmark Zero position localization. \
       Classical spectral method.
     ],
-    defbox(title: "Dirac delta — perfect position")[
+    uncover("2-", defbox(title: "Dirac delta — perfect position")[
       $delta(x - x_0) quad arrows.lr quad e^(i x_0 xi)$\
-      *Zero* frequency localization. \
+      #emoji.crossmark Zero frequency localization. \
       Spirit of finite elements.
-    ],
+    ]),
   )
 
-  #v(0.4cm)
+  #v(0.2cm)
 
-  #propbox(title: "Heisenberg Uncertainty Principle")[
+  #uncover(3, propbox(title: "Heisenberg Uncertainty Principle")[
     Any function occupies a region of area $>= 1/2$ in the position $times$ frequency space.
     $
       Delta x Delta xi >= 1/2
     $
-  ]
+  ])
 ]
 
 #slide[
-  = The Gaussian
-  #v(1cm)
+  = Strike a Balance
+  #v(0.5cm)
 
   Need localization in *both*. \
-  $->$ Handle global/periodic and local phenomenon alike.
+  $->$ Handle global/periodic and local/singular phenomenon alike.
 
-  The Gaussian is optimal in both domains and achieves equality.
-  $
-    Delta x Delta xi = 1/sqrt(2) 1/sqrt(2) = 1/2
-  $
+  #pause
+
+  #v(1cm)
+  = The Gaussian
+  #v(0.1cm)
 
   #grid(
     columns: (1fr, 1fr),
-    align: center,
     [
-      Gaussian is Fourier self-dual
-      $
-        e^(-x^2\/2) arrows.lr e^(-xi^2\/2)
-      $
+      - Same localization in both domains,\
+       minimal uncertainty overall.
+    
+        $
+          Delta x Delta xi = 1/sqrt(2) 1/sqrt(2) = 1/2
+        $
+      - Fourier self-dual.
+        $
+          e^(-x^2\/2) arrows.lr e^(-xi^2\/2)
+        $
     ],
-    wavelet-plot(gaussian, col: yellow.lighten(10%), ymin: -0.5, ymax: 1.1)
+    [
+      #set align(center + horizon)
+      #wavelet-plot(gaussian, width: 400pt, col: yellow.lighten(10%), ymin: -0.5, ymax: 1.1)
+    ],
   )
 
 ]
 
 #slide[
   = Wavelets
-  #snote[The natural choice for a spectral theory.]
+  #snote[Functions localized in both space and frequency]
   #v(0.3cm)
 
   #figure(grid(
@@ -643,49 +608,40 @@
       #wavelet-plot(morlet, col: green.lighten(20%))
     ],
   ))
-  
-  A wavelet $psi_(j,k)$ occupies a region in space $times$ frequency. \
-  Determined by scale $j$ and translation $k$.
 
-  #v(0.2cm)
-
-  - Coarse scale: wide in space, narrow in frequency — smooth/periodic regions
-  - Fine scale: narrow in space, wide in frequency — sharp features, singularities
+  Wavelets can be scaled and translated.
+  - large scale + narrow in frequency $->$ smooth/periodic phenomena
+  - small scale + wide in frequency $->$ sharp/singular phenomena
 ]
 
 #slide[
-  = Polar Wavelets — The Differential Choice
-  #snote[Spherical coordinates in frequency dictate the wavelet structure]
-
+  = Polar Wavelets
   #v(0.3cm)
 
-  In spherical frequency coordinates $xi = (rho, theta)$, the window *factorizes*:
+  Exterior Calculus is spherical in frequency space.\
+  $->$ Define wavelets in spherical frequency coordinates $xi = (rho, theta)$
+  $
+    hat(psi)(rho, theta) = h(rho) dot g(theta)
+  $
+  - $h(rho)$: radial factor: where $dif$ and $delta$ act
+  - $g(theta)$: angular factor: directionality; from isotropic to curvelet
 
-  #defbox(title: "Polar wavelet window")[
-    $
-      hat(psi)(rho, theta) = h(rho) dot g(theta)
-    $
-    - $h(rho)$: radial window — dyadic scale, *where $dif$ and $delta$ act* (multiply by $i rho$)
-    - $g(theta)$: angular window — tunable directionality; from isotropic to curvelet
-  ]
-]
-
-#slide[
-  = Two Types of Wavelets
-  #snote[The Hodge decomposition is *built-in*.]
-  #v(0.2cm)
-
+  #v(0.3cm)
+  The Hodge decomposition is *built-in*:
+  #v(-0.5cm)
   #grid(columns: (1fr, 1fr), gutter: 12pt,
-    defbox(title: "Exact Wavelets")[
-      Without radial component.
+    defbox(title: "Tangential/Exact Wavelets")[
+      #set text(35pt)
+      #v(-1cm)
       $
-        hat(psi)^(r,dif)_s
+        hat(psi)^dif in im(dif)
       $
     ],
-    defbox(title: "Coexact Wavelets")[
-      With radial component.
+    defbox(title: "Radial/Coexact Wavelets")[
+      #set text(35pt)
+      #v(-1cm)
       $
-        hat(psi)^(r,delta)_s
+        hat(psi)^delta in im(delta)
       $
     ],
   )
@@ -693,33 +649,44 @@
 
 #slide[
   = Differential Form Wavelets
-  #snote[The de Rham complex holds for every individual basis function]
-  #v(0.2cm)
+  #v(0.5cm)
 
-  #text(35pt)[
-    $
-      psi^(k,nu,n)_(s,a)
-    $
-  ]
+  #grid(
+    columns: (20%, 80%),
+    text(40pt)[
+      #set align(center + horizon)
+      $
+        psi^(k,nu)_s
+      $
+    ],
+    [
+      - form degree $k$
+      - type $nu in {dif, delta}$
+      - geometry $s = (j, k, t)$ — scale, translation, orientation.
+    ],
+  )
 
-  - form degree $k$
-  - type $nu in {dif, delta}$,
-  - geometry $s = (j, k, t)$ — scale, translation, orientation.
-
-  #v(0.3cm)
-
-  The exterior derivative maps one wavelet to another. \
-  Scale $j$, position $k$, orientation $t$ are *unchanged*.
+  #v(1cm)
+  Wavelets are built with de Rham complex in mind!\
+  $->$ Differentials map one wavelet to another. Geometry $s$ unchanged!\
+  $->$ Structural Identities elegantly fulfilled.
+  #set text(40pt)
   $
-    dif psi^(r,delta)_s = psi^(r+1,dif)_s
+    dif psi^(k,delta)_s = psi^(k+1,dif)_s
     quad quad
-    dif psi^(r,dif)_s = 0
+    dif psi^(k,dif)_s = 0
   $
 ]
 
 #slide[
   = The Main Message
   #v(0.6cm)
+
+  *multidimensional calculus* $->$ *exterior calculus* $->$ *frequency space* $->$ *spherical coordinates*
+
+  The de Rham complex reduces to adding/removing radial components.
+
+  Polar differential forms wavelets!
 ]
 
 #slide[
