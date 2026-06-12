@@ -4,12 +4,11 @@
 #import "graphics.typ": *
 #show: math-template
 
-//#let fgcolor = white
-//#let bgcolor = black
-//#let accent  = rgb("#5ba4d4")
-//#let accent2 = rgb("#e07b4f")
-#let fgcolor = black
-#let bgcolor = white
+#let fgcolor = white
+#let bgcolor = black
+//#let fgcolor = black
+//#let bgcolor = white
+
 #let accent  = blue
 #let accent2 = red
 
@@ -91,7 +90,7 @@
 #slide[
   = Exterior Calculus + Fourier Transform
   #set align(center + horizon)
-  #image("supremacy.png", height: 90%)
+  #image("res/supremacy.png", height: 90%)
 ]
 
 #slide[
@@ -369,7 +368,7 @@
       flow-svg(source-curves, col: "hsl(210,80%,60%)"),
       text(size: 24pt)[$+$],
       flow-svg(vortex-curves, col: "hsl(0,75%,60%)"),
-      $[x-y, x+y]$,
+      $[x-y, y+x]$,
       [],
       $[x,y]$,
       [],
@@ -532,6 +531,8 @@
   - meshless
   - continuous basis functions $b in C^infinity$
 
+  #pause
+
   #propbox(title: "A first idea")[
     Inspired by Fourier: Use plane waves in space.
     $
@@ -643,8 +644,10 @@
   $
     hat(psi)(rho, theta) = h(rho) dot g(theta)
   $
-  - $h(rho)$: radial factor: where $dif$ and $delta$ act
-  - $g(theta)$: angular factor: directionality; from isotropic to curvelet
+  - $h(rho)$ radial factor: where $dif$ and $delta$ act
+  - $g(theta)$ angular factor: directionality; from isotropic to curvelet
+
+  #pause
 
   #v(0.3cm)
   The Hodge decomposition is *built-in*:
@@ -686,6 +689,7 @@
     ],
   )
 
+  #pause
   #v(1cm)
   Wavelets are built with de Rham complex in mind!\
   $->$ Differentials map one wavelet to another. Geometry $s$ unchanged!\
